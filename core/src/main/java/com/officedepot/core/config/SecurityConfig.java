@@ -21,7 +21,7 @@ public class SecurityConfig {
                 )
                 .formLogin(form -> form
                         .loginPage("/login") // 커스텀 로그인 페이지 설정
-                        .defaultSuccessUrl("/home", true) // ✅ 로그인 성공 시 /home 페이지로 이동
+                        .defaultSuccessUrl("/home", true) // 로그인 성공 시 /home 페이지로 이동
                         .permitAll()
                 )
                 .logout(logout -> logout
