@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="OrderMapper">
+
+    <!-- 회원 조회 -->
+    <select id="selectMemberInfo" parameterType="String" resultType="com.officedepot.common.dto.MemberDTO">
+        SELECT
+            M.MCID, M.MCname, M.MCemail, M.MCtel, M.MChtel, M.MCdivision, M.CCcode,
+            CC.CCcodeName, CC.CCtype, CC.CCcondition, CC.CCowner, CC.CCtel, CC.CCemail
+        FROM b_membercode M
+                 JOIN b_companycode CC ON M.CCcode = CC.CCcode
+        WHERE M.MCID = #{mcid}
+    </select>
+
+    <!-- 회원 한도 조회 -->
+    <select id="selectMemberLimit" parameterType="String" resultType="float">
+        SELECT C.CClimit
+        FROM b_membercode M
+                 JOIN b_companycode C ON M.CCcode = C.CCcode
+        WHERE M.MCID = #{mcid}
+    </select>
+
+    <!-- 배송지 조회 -->
+    <select id="selectMemberAddress" parameterType="String" resultType="com.officedepot.common.dto.MemberAddressDTO">
+        SELECT
+            CA.CCAaddr01T, CA.CCAaddr02T, CA.CCAaddr03T, CA.CCAzipcodeT, CA.CCAaddrT
+        FROM b_membercode M
+                 JOIN b_companycodeaddr CA ON M.MCID = CA.MCID
+        WHERE M.MCID = #{mcid}
+    </select>
+
+    <!-- 주문 등록 -->
+    <insert id="insertOrder" parameterType="com.officedepot.common.dto.OrderDTO">
+        INSERT INTO O_OrderList (
+            Omcid, Occode, Ocode, Ono, Oaddr01, Oaddr02, Oaddr03, Ozipcode, Odcmt, Oacmt,
+            Oprocess, Oaddr, Otel, Oemail, Ohtel, Oea, Oprice, OtotalPrice, OshortcodeA, OgCodeA,
+            OdDate, OpValue, ObCode01, ObCode02, Oreceiver, Omethod, OCollection, ObCode03, ObCode04, Oaflag,
+            Omcategory, Odeptid, OaddKey01, OaddKey02, OaddKey03, Opaydetail, OShipDay, ODirectVendor, ODaAppNo, OApprovalDate, opaytype
+        )
+        VALUES (
+           #{omcid}, #{occode}, #{ocode}, #{ono}, #{oaddr01}, #{oaddr02}, #{oaddr03}, #{ozipcode}, #{odcmt}, #{oacmt},
+           #{oprocess}, #{oaddr}, #{otel}, #{oemail}, #{ohtel}, #{oea}, #{oprice}, #{ototalPrice}, #{oshortcodeA}, #{ogCodeA},
+           #{odDate}, #{opValue}, #{obCode01}, #{obCode02}, #{oreceiver}, #{omethod}, #{oCollection}, #{obCode03}, #{obCode04}, #{oaflag},
+           #{omcategory}, #{odeptid}, #{oaddKey01}, #{oaddKey02}, #{oaddKey03}, #{opaydetail}, #{oShipDay}, #{oDirectVendor}, #{oDaAppNo}, #{oApprovalDate}, #{opaytype}
+       )
+    </insert>
+
+</mapper>

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>장바구니</title>
+</head>
+<body>
+
+<h2>장바구니 목록</h2>
+
+<table border="1">
+    <tr>
+        <th>상품명</th>
+        <th>수량</th>
+        <th>가격</th>
+        <th>삭제</th>
+    </tr>
+    <tr th:each="cart : ${cartList}">
+        <td th:text="${cart.caPvalue}"></td>
+        <td th:text="${cart.caea}"></td>
+        <td th:text="${cart.caStorageDate}"></td>
+        <td>
+            <form th:action="@{/cart/delete}" method="post">
+                <input type="hidden" name="caIdx" th:value="${cart.caidx}">
+                <input type="hidden" name="caId" th:value="${cart.caId}">
+                <button type="submit">삭제</button>
+            </form>
+        </td>
+    </tr>
+</table>
+
+</body>
+</html>
