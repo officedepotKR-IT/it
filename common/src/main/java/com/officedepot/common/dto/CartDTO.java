@@ -18,4 +18,7 @@ public class CartDTO {
     private int caea;              // 수량
     private String caMtable;       // 상품 테이블명
 
+    // 상품 정보를 포함
+    private ProductDTO product;
+
 }

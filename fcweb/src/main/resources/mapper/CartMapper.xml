@@ -5,14 +5,99 @@
 <mapper namespace="CartMapper">
 
     <!--장바구니 목록 조회-->
-    <select id="getCartItems" parameterType="String" resultType="com.officedepot.common.dto.CartDTO">
+    <select id="getCartItems" parameterType="String" resultMap="CartWithProductMap">
         SELECT
-            caidx, caId, caMkey, caPvalue, caregdate, caStorageDate, caea, caMtable
-        FROM B_Cart WHERE CaId = #{caId}
+            c.caidx, c.caId, c.caMkey, c.caPvalue, c.caregdate, c.caStorageDate,
+            CASE WHEN c.Caea IS NULL THEN 1 ELSE c.Caea END AS caea,
+            c.caMtable,
+            b.*,
+            (b.GType3Price * (CASE WHEN c.Caea IS NULL THEN 1 ELSE c.Caea END)) AS itemTotalPrice
+        FROM b_goods b
+                 JOIN b_cart c ON b.gidx = c.CaMkey
+        WHERE c.CaId = #{caId}
+    </select>
+
+    <resultMap id="CartWithProductMap" type="com.officedepot.it.common.dto.CartDTO">
+        <id property="caidx" column="caidx"/>
+        <result property="caId" column="caId"/>
+        <result property="caMkey" column="caMkey"/>
+        <result property="caPvalue" column="caPvalue"/>
+        <result property="caregdate" column="caregdate"/>
+        <result property="caStorageDate" column="caStorageDate"/>
+        <result property="caea" column="caea"/>
+        <result property="caMtable" column="caMtable"/>
+
+        <!-- ProductDTO 매핑 -->
+        <association property="product" javaType="com.officedepot.it.common.dto.ProductDTO">
+            <id property="gidx" column="gidx"/>
+            <result property="gshortCode" column="gshortCode"/>
+            <result property="gbarCode" column="gbarCode"/>
+            <result property="gbarCodeR" column="gbarCodeR"/>
+            <result property="grepCode" column="grepCode"/>
+            <result property="gprvCode" column="gprvCode"/>
+            <result property="gboxCode" column="gboxCode"/>
+            <result property="gpieceQty" column="gpieceQty"/>
+            <result property="gcategoryCode" column="gcategoryCode"/>
+            <result property="gname" column="gname"/>
+            <result property="gnameEng" column="gnameEng"/>
+            <result property="gproduction" column="gproduction"/>
+            <result property="gvendorName" column="gvendorName"/>
+            <result property="gorigin" column="gorigin"/>
+            <result property="gshipQty" column="gshipQty"/>
+            <result property="gwebPrice" column="gwebPrice"/>
+            <result property="gbtobPrice" column="gbtobPrice"/>
+            <result property="gaDisplay" column="gaDisplay"/>
+            <result property="gbtobDisplay" column="gbtobDisplay"/>
+            <result property="gdivision" column="gdivision"/>
+            <result property="step01" column="step01"/>
+            <result property="step02" column="step02"/>
+            <result property="step03" column="step03"/>
+            <result property="preidx" column="preidx"/>
+            <result property="gshipPrice" column="gshipPrice"/>
+            <result property="gpurchasePrice" column="gpurchasePrice"/>
+            <result property="gcsmPrice" column="gcsmPrice"/>
+            <result property="gcnt" column="gcnt"/>
+            <result property="gunit" column="gunit"/>
+            <result property="gmainD" column="gmainD"/>
+            <result property="gIsNoTax" column="gIsNoTax"/>
+            <result property="gkeyWord" column="gkeyWord"/>
+            <result property="gusingGroup" column="gusingGroup"/>
+            <result property="gloc01" column="gloc01"/>
+            <result property="gloc02" column="gloc02"/>
+            <result property="gType3Price" column="gType3Price"/>
+            <result property="oDJcode" column="oDJcode"/>
+            <result property="oDJcodeName" column="oDJcodeName"/>
+            <result property="gdate" column="gdate"/>
+            <result property="oDKClass1" column="oDKClass1"/>
+            <result property="oDKClass1Name" column="oDKClass1Name"/>
+            <result property="oDKClass2" column="oDKClass2"/>
+            <result property="oDKClass2Name" column="oDKClass2Name"/>
+            <result property="gimgUrl" column="gimgUrl"/>
+            <result property="gimgDetail" column="gimgDetail"/>
+            <result property="gimgNotice" column="gimgNotice"/>
+            <result property="gorder" column="gorder"/>
+            <result property="gidCode" column="gidCode"/>
+            <result property="gDCMemo" column="gDCMemo"/>
+            <result property="gOrderBlock" column="gOrderBlock"/>
+            <result property="gmultipleQty" column="gmultipleQty"/>
+            <result property="grecvDate" column="grecvDate"/>
+            <result property="gshipType" column="gshipType"/>
+            <result property="gdeliveryDay01" column="gdeliveryDay01"/>
+            <result property="gdeliveryDay02" column="gdeliveryDay02"/>
+        </association>
+    </resultMap>
+
+    <!--장바구니 총합계-->
+    <select id="getCartTotalPrice" parameterType="String" resultType="int">
+        SELECT
+            COALESCE(SUM(b.GType3Price * (CASE WHEN c.Caea IS NULL THEN 1 ELSE c.Caea END)), 0) AS totalPrice
+        FROM b_goods b
+                 JOIN b_cart c ON b.gidx = c.CaMkey
+        WHERE c.CaId = #{caId}
     </select>
 
     <!--장바구니 상품 추가-->
-    <insert id="addCartItem" parameterType="com.officedepot.common.dto.CartDTO">
+    <insert id="addCartItem" parameterType="com.officedepot.it.common.dto.CartDTO">
         INSERT INTO B_Cart (
             caId, caMkey, caPvalue, caregdate, caStorageDate, caea, caMtable
         )
@@ -38,5 +123,24 @@
     <delete id="clearCart" parameterType="String">
         DELETE FROM Cart WHERE CaId = #{caId}
     </delete>
+    
+    <!--본사사업장 정보-->
+    <select id="getBranchInfo" resultType="com.officedepot.it.common.dto.BranchInfoDTO">
+        SELECT
+            BIcode AS companycode,
+            BIname AS companyName,
+            BInumber AS companynumber,
+            BIowner AS companyowner,
+            BIcondition AS companyCondition,
+            BItype AS companyType,
+            BItel AS companyTel,
+            BIhtel AS companyHtel,
+            BIfax AS companyFax,
+            BIemail AS companyEmail,
+            BIzipcode AS companyZipcode,
+            CONCAT(BIsido, ' ', BIgugun, ' ', BIdong, ' ', BIaddr) AS companyAddr
+        FROM B_BranchInfo
+        WHERE biCode = 1030
+    </select>
 
 </mapper>

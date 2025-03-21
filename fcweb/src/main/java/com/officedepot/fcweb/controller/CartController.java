@@ -9,6 +9,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Controller
@@ -21,8 +22,15 @@ public class CartController {
     /*장바구니 목록 조회*/
     @GetMapping("/list")
     public String cartList(@RequestParam("caId") String caId, Model model) {
+
+        // 장바구니 리스트
         List<CartDTO> cartList = cartService.getCartItems(caId);
+        // 본사사업장 정보(견적서용)
+        List<String> branchList = new ArrayList<>();
+
         model.addAttribute("cartList" , cartList);
+        model.addAttribute("branchList" , branchList);
+
         return "cart/cartList";
     }
 

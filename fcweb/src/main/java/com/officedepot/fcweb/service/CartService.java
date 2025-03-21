@@ -1,5 +1,6 @@
 package com.officedepot.fcweb.service;
 
+import com.officedepot.common.dto.BranchInfoDTO;
 import com.officedepot.common.dto.CartDTO;
 import java.util.List;
 
@@ -15,4 +16,6 @@ public interface CartService {
     String deleteCartItem(int caIdx);
     /*장바구니 항목 전체삭제*/
     String clearCart(String caId);
+    /*본사사업장 정보*/
+    List<BranchInfoDTO> getBranchInfo();
 }
